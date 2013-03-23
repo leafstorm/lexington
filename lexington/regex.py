@@ -85,21 +85,21 @@ class Regex(object):
 
     def star(self):
         """
-        Returns a regular expression that accepts this one repeated any
-        number of times. (Equivalent to the `star` function.)
+        Creates a regular expression that accepts this one repeated any
+        number of times. (Equivalent to the `~lexington.regex.star` function.)
         """
         return star(self)
 
     def plus(self):
         """
-        Returns a regular expression that accepts this one repeated any
+        Creates a regular expression that accepts this one repeated any
         number of times.
         """
         return concat(self, star(self))
 
     def maybe(self):
         """
-        Returns a regular expression that accepts this one, or the empty
+        Creates a regular expression that accepts this one, or the empty
         string.
         """
         return union(self, Epsilon)

@@ -29,3 +29,6 @@ nosetests.xml
 
 # Translations
 *.mo
+
+# Documentation
+docs/_build/
