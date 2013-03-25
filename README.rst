@@ -1,7 +1,7 @@
 Lexington
 =========
 Lexington is a nonblocking lexer toolkit for Python. It's inspired by
-[a similar lexing toolkit][might] written in Scala by Matt Might. Basically,
+`a similar lexing toolkit`_ written in Scala by Matt Might. Basically,
 it allows you to define lexers in Python, and then stream input to them
 asynchronously.
 
@@ -13,4 +13,4 @@ Oh, and it's named after Lexington, North Carolina, not any of the other
 Lexingtons lying around.
 
 
-[might]: http://matt.might.net/articles/nonblocking-lexing-toolkit-based-on-regex-derivatives/
+.. _a similar lexing toolkit: http://matt.might.net/articles/nonblocking-lexing-toolkit-based-on-regex-derivatives/
