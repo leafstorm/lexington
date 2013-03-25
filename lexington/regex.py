@@ -32,7 +32,12 @@ class _RegexClass(ABCMeta):
             return super(_RegexClass, self).__call__(*args, **kwargs)
 
 
-class Regex(object):
+_Regex = _RegexClass("_Regex", (object,), {
+    __doc__: "This is needed for Python 3 compatibility."
+})
+
+
+class Regex(_Regex):
     """
     This is the abstract base class for elements of regular expressions.
     (It's also used as a factory for converting mundane Python data types

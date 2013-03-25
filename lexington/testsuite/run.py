@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-lexington.testsuite.__main__
-============================
+lexington.testsuite.run
+=======================
 This is the entry point for Lexington's test suite.
 
 :copyright: (C) 2013, Matthew Frazier
@@ -12,7 +12,7 @@ import unittest
 from . import suite
 
 if '-h' in sys.argv or '-H' in sys.argv or '--help' in sys.argv:
-    print "Options: -q, --quiet, -v, --verbose"
+    print("Options: -q, --quiet, -v, --verbose")
     sys.exit(1)
 
 if '-q' in sys.argv or '--quiet' in sys.argv:

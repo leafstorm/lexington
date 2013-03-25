@@ -1,0 +1,3 @@
+include MANIFEST.in LICENSE README.rst
+recursive-include docs *
+recursive-exclude docs/_build *
