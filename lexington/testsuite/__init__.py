@@ -29,10 +29,18 @@ class LexingtonTestCase(unittest.TestCase):
         self.teardown()
 
     def assert_is(self, a, b):
-        return self.assertIs(a, b)
+        if hasattr(self, 'assertIs'):
+            return self.assertIs(a, b)
+        else:
+            return self.assert_(a is b, "%r is not %r" % (a, b))
 
     def assert_instance(self, instance, cls):
-        return self.assertIsInstance(instance, cls)
+        if hasattr(self, 'assertIsInstance'):
+            return self.assertIsInstance(instance, cls)
+        else:
+            return self.assert_(isinstance(instance, cls),
+                                "%r is not an instance of %r" %
+                                (instance, cls))
 
     def assert_equal(self, a, b):
         return self.assertEqual(a, b)
