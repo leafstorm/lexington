@@ -31,6 +31,12 @@ Regular Expression API
       Creates a regular expression that either matches this regex or `other`.
       (Equivalent to `union`.)
 
+   .. method:: regex ** count
+
+      Creates a regular expression that matches this regex `count` times.
+      (Equivalent to `repeat`. Keep in mind that this is the exponentiation
+      operator, not multiplication as is more common with Python's strings.)
+
    .. automethod:: star
 
    .. automethod:: plus
@@ -58,6 +64,8 @@ Constructor Functions
 .. autofunction:: join
 
 .. autofunction:: star
+
+.. autofunction:: repeat
 
 
 Mathematical Concepts

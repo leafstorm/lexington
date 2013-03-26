@@ -11,7 +11,7 @@ import unittest
 from . import LexingtonTestCase, make_suite
 
 from lexington.regex import (Regex, Null, Epsilon, Any,
-                             concat, union, join, star)
+                             concat, union, join, star, repeat)
 
 class DerivationTests(LexingtonTestCase):
     """
@@ -58,6 +58,17 @@ class DerivationTests(LexingtonTestCase):
         assert not b.accepts_empty_string
         self.assert_is(b.derive("b"), Epsilon)
 
+    def test_repeat(self):
+        s3 = repeat(Regex("a"), 3)
+        assert not s3.accepts_empty_string
+        s2 = s3.derive("a")
+        self.assert_equal(s2, repeat(Regex("a"), 2))
+        s1 = s2.derive("a")
+        self.assert_equal(s1, Regex("a"))
+        self.assert_is(s1.derive("a"), Epsilon)
+
+        self.assert_is(s3.derive("b"), Null)
+
 
 class IdentityTests(LexingtonTestCase):
     """
@@ -87,6 +98,17 @@ class IdentityTests(LexingtonTestCase):
     def test_null_star(self):
         self.assert_is(star(Null), Epsilon)
 
+    def test_repeat_0_1(self):
+        a = Regex("a")
+        self.assert_is(repeat(a, 0), Epsilon)
+        self.assert_is(repeat(a, 1), a)
+
+    def test_epsilon_repeat(self):
+        self.assert_is(repeat(Epsilon, 5), Epsilon)
+
+    def test_null_repeat(self):
+        self.assert_is(repeat(Null, 5), Null)
+
 
 class OperatorTests(LexingtonTestCase):
     """
@@ -100,6 +122,10 @@ class OperatorTests(LexingtonTestCase):
     def test_bar_union(self):
         a, b = Regex("a"), Regex("b")
         self.assert_equal(a | b, union(a, b))
+
+    def test_pow_repeat(self):
+        a = Regex("a")
+        self.assert_equal(a ** 3, repeat(a, 3))
 
     def test_star_method(self):
         a = Regex("a")

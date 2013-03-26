@@ -122,6 +122,9 @@ class Regex(_Regex):
     def __ror__(self, other):
         return union(other, self)
 
+    def __pow__(self, count):
+        return repeat(self, count)
+
 
 class EpsilonRegex(Regex):
     """
@@ -282,6 +285,35 @@ class StarRegex(Regex):
         return hash((id(type(self)), self.regex))
 
 
+class RepeatRegex(Regex):
+    """
+    A regular expression that will match a certain regex, repeated a specific
+    number of times.
+
+    :param regex: The regular expression describing the strings to repeat.
+    :param count: The number of times to repeat it.
+    """
+    __slots__ = ('regex', 'count')
+
+    def __init__(self, regex, count):
+        if count < 2:
+            raise ValueError("Repeat must be greater than 1" % count)
+        self.regex = regex
+        self.count = count
+
+    def derive(self, sym):
+        return concat(self.regex.derive(sym),
+                      repeat(self.regex, self.count - 1))
+
+    accepts_empty_string = False
+
+    def __repr__(self):
+        return "repeat(%r, %d)" % (self.regex, self.count)
+
+    def __hash__(self):
+        return hash((id(type(self)), self.regex, self.count))
+
+
 ### Regex Constructors
 
 def regexify(e):
@@ -405,3 +437,23 @@ def star(regex):
         return regex
     else:
         return StarRegex(regexify(regex))
+
+
+def repeat(regex, count):
+    """
+    Creates a regular expression that accepts `regex` repeated a specific
+    number of times.
+
+    :param regex: The regular expression describing the strings to reepeat.
+    :param count: The number of times to repeat it.
+    """
+    if count == 0:
+        return Epsilon
+    elif count == 1:
+        return regex
+    elif regex is Epsilon:
+        return Epsilon
+    elif regex is Null:
+        return Null
+    else:
+        return RepeatRegex(regex, count)
