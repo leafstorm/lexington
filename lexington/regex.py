@@ -87,6 +87,25 @@ class Regex(_Regex):
     def __hash__(self):
         pass
 
+    ### High-level regex operations
+
+    def match(self, subject):
+        """
+        Determines whether the `subject` matches this regex. This performs a
+        total match -- if you want the behavior of `re.match`, which only
+        matches a prefix, use `match_prefix`.
+
+        This returns `True` if the match succeeds, and `False` if not.
+
+        :param subject: The string to match against this regex.
+        """
+        re = self
+        for sym in subject:
+            re = re.derive(sym)
+            if re is Null:
+                return False
+        return re.accepts_empty_string
+
     ### Operator overloads and convenience methods
 
     def star(self):

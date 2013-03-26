@@ -13,6 +13,40 @@ from . import LexingtonTestCase, make_suite
 from lexington.regex import (Regex, Null, Epsilon, Any,
                              concat, union, join, star, repeat)
 
+class MatchingTests(LexingtonTestCase):
+    """
+    These tests check regular expressions matching strings.
+    """
+    def test_epsilon(self):
+        self.assert_(Epsilon.match(""))
+        self.assert_false(Epsilon.match("abc"))
+
+    def test_not_null(self):
+        self.assert_false(Null.match(""))
+        self.assert_false(Null.match("abc"))
+
+    def test_simple(self):
+        self.assert_(Regex("abc").match("abc"))
+        self.assert_false(Regex("abc").match("ab"))
+        self.assert_false(Regex("abc").match("abcd"))
+
+    def test_union(self):
+        msv = Regex("spam") | Regex("eggs")
+        self.assert_(msv.match("spam"))
+        self.assert_(msv.match("eggs"))
+        self.assert_false(msv.match("ham"))
+
+    def test_complex(self):
+        msv = Regex("spam") | Regex("eggs")
+        total = msv + (" " + msv).star()
+        self.assert_(total.match("spam"))
+        self.assert_(total.match("spam spam spam spam"))
+        self.assert_(total.match("eggs spam eggs"))
+        self.assert_false(total.match("eggs spam "))
+        self.assert_false(total.match(" "))
+        self.assert_false(total.match("spam spam ham eggs"))
+
+
 class DerivationTests(LexingtonTestCase):
     """
     These tests check whether the different types of regexes derive correctly.
@@ -133,6 +167,7 @@ class OperatorTests(LexingtonTestCase):
 
 
 suite = make_suite(
+    MatchingTests,
     DerivationTests,
     IdentityTests,
     OperatorTests

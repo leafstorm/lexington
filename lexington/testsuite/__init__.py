@@ -28,6 +28,12 @@ class LexingtonTestCase(unittest.TestCase):
     def tearDown(self):
         self.teardown()
 
+    def assert_true(self, e):
+        return self.assertTrue(e)
+
+    def assert_false(self, e):
+        return self.assertFalse(e)
+
     def assert_is(self, a, b):
         if hasattr(self, 'assertIs'):
             return self.assertIs(a, b)

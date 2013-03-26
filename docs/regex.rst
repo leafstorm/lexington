@@ -14,12 +14,18 @@ Regular Expression API
 .. currentmodule:: lexington.regex
 
 .. autoclass:: Regex
-   
+
+   .. automethod:: match
+
+
+   .. rubric:: Mathematical Properites
+
    .. automethod:: derive
 
    .. autoattribute:: accepts_empty_string
 
-   .. rubric:: Methods for Composing Regexes
+
+   .. rubric:: Building Regexes
 
    .. method:: regex + other
 
