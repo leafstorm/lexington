@@ -33,7 +33,8 @@ class _RegexClass(ABCMeta):
 
 
 _Regex = _RegexClass("_Regex", (object,), {
-    __doc__: "This is needed for Python 3 compatibility."
+    "__doc__": "This is needed for Python 3 compatibility.",
+    "__slots__": ()
 })
 
 
