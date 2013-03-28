@@ -106,6 +106,16 @@ class Regex(_Regex):
                 return False
         return re.accepts_empty_string
 
+    @property
+    def literal(self):
+        """
+        If this regular expression matches a literal string exactly, this
+        property contains that string. Otherwise, it will be `None`.
+        (You can generally only assume that regexes constructed *from* literal
+        strings will have this property.)
+        """
+        return None
+
     ### Operator overloads and convenience methods
 
     def star(self):
@@ -198,6 +208,10 @@ class SymbolRegex(Regex):
 
     accepts_empty_string = False
 
+    @property
+    def literal(self):
+        return self.sym
+
     def __repr__(self):
         return "Regex(%r)" % self.sym
 
@@ -245,7 +259,7 @@ class UnionRegex(Regex):
         return any(r.accepts_empty_string for r in self.options)
 
     def __repr__(self):
-        return "union(%s)" % ", ".join(repr(r) for r in self.options)
+        return " | ".join(repr(r) for r in self.options)
 
     def __hash__(self):
         return hash((id(type(self)), self.options))
@@ -273,8 +287,18 @@ class ConcatRegex(Regex):
         return (self.prefix.accepts_empty_string and
                 self.suffix.accepts_empty_string)
 
+    @property
+    def literal(self):
+        if self.prefix.literal and self.suffix.literal:
+            return self.prefix.literal + self.suffix.literal
+        else:
+            return None
+
     def __repr__(self):
-        return "concat(%r, %r)" % (self.prefix, self.suffix)
+        if self.literal:
+            return "Regex(%r)" % self.literal
+        else:
+            return "%r + %r" % (self.prefix, self.suffix)
 
     def __hash__(self):
         return hash((id(type(self)), self.prefix, self.suffix))
@@ -327,7 +351,7 @@ class RepeatRegex(Regex):
     accepts_empty_string = False
 
     def __repr__(self):
-        return "repeat(%r, %d)" % (self.regex, self.count)
+        return "%r ** %d" % (self.regex, self.count)
 
     def __hash__(self):
         return hash((id(type(self)), self.regex, self.count))

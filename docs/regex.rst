@@ -17,6 +17,8 @@ Regular Expression API
 
    .. automethod:: match
 
+   .. autoattribute:: literal
+
 
    .. rubric:: Mathematical Properites
 
