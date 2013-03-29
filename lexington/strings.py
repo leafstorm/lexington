@@ -92,7 +92,7 @@ def native_strings(fn):
 def string_type(string):
     """
     Returns the Python type of a string with `string` as a symbol or
-    substring. (This can't justuse `type`, because it has to take into
+    substring. (This can't just use `type`, because it has to take into
     account that on Python 3, the "symbols" for a bytestring are `int`.)
 
     :param string: A string or symbol.
