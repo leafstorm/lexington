@@ -6,7 +6,7 @@ setup.py for Lexington
 :copyright: (C) 2013, Matthew Frazier
 :license:   Released under the MIT/X11 license, see LICENSE for details
 """
-
+# intentionally not importing unicode_literals
 try:
     from setuptools import setup
 except ImportError:

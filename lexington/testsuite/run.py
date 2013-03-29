@@ -7,6 +7,7 @@ This is the entry point for Lexington's test suite.
 :copyright: (C) 2013, Matthew Frazier
 :license:   Released under the MIT/X11 license, see LICENSE for details
 """
+# intentionally not importing unicode_literals
 import sys
 import unittest
 from . import suite

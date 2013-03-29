@@ -9,33 +9,56 @@ derivatives even if they were. So, this implementation is necessary.
 :copyright: (C) 2013, Matthew Frazier
 :license:   Released under the MIT/X11 license, see LICENSE for details
 """
+from __future__ import unicode_literals
 from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import Sequence
+from .strings import native_strings, n
 
 
-### Actual regular-expression classes ###
+### Very scary metaprogramming ###
 
 class _RegexClass(ABCMeta):
     """
-    We can't instantiate `Regex` directly anyway, since it's an ABC, so
-    it's intuitive to just use ``Regex(string)``. However, some weird
-    stuff happened when I tried to use `__new__`. Therefore, I overrode
-    `__call__` in the metaclass instead.
+    This is a metaclass, and a giant hack. It has two primary functions:
 
-    This is a horrible hack. However, it does illuminate the nature of
-    classes and metaclasses.
+    First, it obviates the needs to decorate every `__repr__` method with
+    `~lexington.strings.native_strings`.
+
+    Second, because it doesn't make sense to instantiate `Regex` directly,
+    it's convenient to use it as a factory for actual `Regex` subclasses.
+    However, the behavior of `__new__` can be a bit confusing.
+    By overriding `__call__` in the metaclass directly, we can prevent the
+    whole "`__new__`/`__init__`" stack from entering the picture when using
+    `Regex` as a factory function.
     """
-    def __call__(self, *args, **kwargs):
-        if self is Regex:
+    def __new__(mcls, name, bases, namespace):
+        # __new__ is called on the metaclass when creating a class.
+        # It has the chance to modify the class's namespace before the
+        # class is actually created.
+        # We use this as a chance to wrap the __repr__ method.
+        if '__repr__' in namespace:
+            namespace['__repr__'] = native_strings(namespace['__repr__'])
+        return super(_RegexClass, mcls).__new__(mcls, name, bases, namespace)
+
+    def __call__(cls, *args, **kwargs):
+        # A class is just an object, and a metaclass is the type of that
+        # object. So, when you do AClass(...), it calls the __call__ method
+        # on that class, just like any other object.
+        if cls is Regex:
             return regexify(*args, **kwargs)
         else:
-            return super(_RegexClass, self).__call__(*args, **kwargs)
+            return super(_RegexClass, cls).__call__(*args, **kwargs)
 
 
-_Regex = _RegexClass("_Regex", (object,), {
-    "__doc__": "This is needed for Python 3 compatibility.",
-    "__slots__": ()
-})
+_Regex = _RegexClass(n("_Regex"), (object,), dict(
+    __doc__ = "This is needed for Python 3 compatibility. "
+              "The metaclass syntax changed between Python 3 and Python 2, "
+              "so we need to construct a base class programmatically.",
+    __slots__ = ()
+))
+
+
+### Actual regular expression classes ###
 
 
 class Regex(_Regex):

@@ -7,6 +7,7 @@ This file contains tests for the internals of the regular expression module.
 :copyright: (C) 2013, Matthew Frazier
 :license:   Released under the MIT/X11 license, see LICENSE for details
 """
+from __future__ import unicode_literals
 import unittest
 from . import LexingtonTestCase, make_suite
 

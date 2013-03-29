@@ -9,6 +9,7 @@ checks the tests' internals, the other only uses the documented API.
 :copyright: (C) 2013, Matthew Frazier
 :license:   Released under the MIT/X11 license, see LICENSE for details
 """
+from __future__ import unicode_literals
 import unittest
 
 class LexingtonTestCase(unittest.TestCase):
