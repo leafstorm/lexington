@@ -25,4 +25,6 @@ else:
 
 test_suite = suite()
 runner = unittest.TextTestRunner(verbosity=verbosity)
-runner.run(test_suite)
+result = runner.run(test_suite)
+
+sys.exit(0 if result.wasSuccessful() else 1)
