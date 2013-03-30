@@ -68,10 +68,11 @@ def make_suite(*cases):
 
 
 def suite():
-    from . import regex, regex_impl
+    from . import strings, regex, regex_impl
 
     test_suite = unittest.TestSuite()
 
+    test_suite.addTest(strings.suite())
     test_suite.addTest(regex.suite())
     #test_suite.addTest(regex_impl.suite())
 
