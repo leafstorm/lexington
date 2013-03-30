@@ -13,6 +13,7 @@ from . import LexingtonTestCase, make_suite
 
 from lexington.regex import (Regex, Null, Epsilon, Any,
                              concat, union, join, star, repeat)
+from lexington.strings import Text, Bytestring
 
 class MatchingTests(LexingtonTestCase):
     """
@@ -145,6 +146,54 @@ class IdentityTests(LexingtonTestCase):
         self.assert_is(repeat(Null, 5), Null)
 
 
+class AlphabetTests(LexingtonTestCase):
+    """
+    These tests check that regexes report the alphabet they match correctly.
+    """
+    def test_alphabet_independents(self):
+        self.assert_is(Epsilon.alphabet, None)
+        self.assert_is(Null.alphabet, None)
+        # TODO: Add tests for Any once we decide how to handle that
+
+    def test_alphabets_of_strings(self):
+        text = Regex("GET")
+        ascii = Regex(b"GET")
+        self.assert_is(text.alphabet, Text)
+        self.assert_is(ascii.alphabet, Bytestring)
+
+    def test_alphabets_of_symbols(self):
+        text = "GET"
+        ascii = b"GET"
+        self.assert_is(Regex(text[0]).alphabet, Text)
+        self.assert_is(Regex(ascii[0]).alphabet, Bytestring)
+
+    def test_non_strings(self):
+        self.assert_raises(TypeError, Regex, Ellipsis)
+
+    def test_concatenation(self):
+        terry = "Terry"
+        gilliam = "Gilliam"
+        pratchett = b"Pratchett"
+
+        self.assert_is(concat(terry, gilliam).alphabet, Text)
+        self.assert_raises(TypeError, concat, terry, pratchett)
+
+    def test_union(self):
+        terry = "Terry"
+        michael = "Michael"
+        ringo = b"Ringo"
+
+        self.assert_is(union(terry, michael).alphabet, Text)
+        self.assert_is(union(terry, Epsilon).alphabet, Text)
+        self.assert_raises(TypeError, concat, terry, michael, ringo)
+
+    def test_star(self):
+        self.assert_is(star("Terry").alphabet, Text)
+
+    def test_repeat(self):
+        self.assert_is(repeat("Terry", 5).alphabet, Text)
+
+
 class OperatorTests(LexingtonTestCase):
     """
     These tests check convenience methods of `Regex` instances and operator
@@ -171,5 +220,6 @@ suite = make_suite(
     MatchingTests,
     DerivationTests,
     IdentityTests,
+    AlphabetTests,
     OperatorTests
 )

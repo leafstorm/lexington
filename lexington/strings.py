@@ -36,6 +36,14 @@ Bytestring = bytes if PYTHON_3000 else str
 Byte = int if PYTHON_3000 else str
 
 
+#: A tuple of the types that indicate strings.
+Strings = (Text, Bytestring)
+
+#: A tuple of the types that indicate characters
+#: (that is, anything you can get iterating over a class in `Strings`).
+Characters = (Codepoint, Byte)
+
+
 if PYTHON_3000:
     def n(string):
         """

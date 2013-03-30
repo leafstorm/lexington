@@ -12,7 +12,7 @@ derivatives even if they were. So, this implementation is necessary.
 from __future__ import unicode_literals
 from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import Sequence
-from .strings import native_strings, n
+from .strings import Strings, Characters, native_strings, n, string_type
 
 
 ### Very scary metaprogramming ###
@@ -96,10 +96,22 @@ class Regex(_Regex):
         pass
 
     @abstractproperty
-    def accepts_empty_string():
+    def accepts_empty_string(self):
         """
         Indicates whether this regular expression will accept the empty
         string.
+        """
+        pass
+
+    @abstractproperty
+    def alphabet(self):
+        """
+        Indicates the alphabet of the strings this regular expression can
+        match. `None` indicates that this regular expression is
+        independent of alphabet.
+
+        The alphabet will usually be `~lexington.strings.Text` or
+        `~lexington.strings.Bytestring`.
         """
         pass
 
@@ -189,6 +201,8 @@ class EpsilonRegex(Regex):
 
     accepts_empty_string = True
 
+    alphabet = None
+
     def __repr__(self):
         return "Epsilon"
 
@@ -207,6 +221,8 @@ class NullRegex(Regex):
         return self
 
     accepts_empty_string = False
+
+    alphabet = None
 
     def __repr__(self):
         return "Null"
@@ -230,6 +246,10 @@ class SymbolRegex(Regex):
         return Epsilon if sym == self.sym else Null
 
     accepts_empty_string = False
+
+    @property
+    def alphabet(self):
+        return string_type(self.sym)
 
     @property
     def literal(self):
@@ -256,6 +276,8 @@ class AnySymbolRegex(Regex):
 
     accepts_empty_string = False
 
+    alphabet = None
+
     def __repr__(self):
         return "Any"
 
@@ -269,10 +291,19 @@ class UnionRegex(Regex):
 
     :param options: The regular expressions to accept.
     """
-    __slots__ = ('options')
+    __slots__ = ('options', 'alphabet')
 
     def __init__(self, options):
+        self.alphabet = None
         self.options = frozenset(options)
+        for opt in self.options:
+            if opt.alphabet is not None:
+                if self.alphabet is None:
+                    self.alphabet = opt.alphabet
+                elif opt.alphabet is not self.alphabet:
+                    raise TypeError(n("Cannot mix alphabets %r and %r in "
+                                      "union" %
+                                      (self.alphabet, opt.alphabet)))
 
     def derive(self, sym):
         return union(*(r.derive(sym) for r in self.options))
@@ -292,11 +323,26 @@ class ConcatRegex(Regex):
     """
     A regular expression that matches two regular expressions in a row.
     """
-    __slots__ = ('prefix', 'suffix')
+    __slots__ = ('prefix', 'suffix', 'alphabet')
 
     def __init__(self, prefix, suffix):
         self.prefix = prefix
         self.suffix = suffix
+
+        # This logic is admittedly a bit twisty. The idea is:
+        # If the prefix and suffix are alphabet-independent, so is this.
+        # If the prefix and suffix have the same alphabet, or one has an
+        # alphabet and the other doesn't, this will have the same alphabet.
+        # If the prefix and suffix have different alphabets, that's an error.
+        alpha_pre = prefix.alphabet
+        alpha_suf = suffix.alphabet
+        if alpha_pre is not None or alpha_suf is not None:
+            if alpha_pre is not alpha_suf:
+                raise TypeError(n("Cannot concatenate alphabets %r and %r" %
+                                  (alpha_pre, alpha_suf)))
+            self.alphabet = alpha_pre if alpha_suf is None else alpha_suf
+        else:
+            self.alphabet = None
 
     def derive(self, sym):
         if self.prefix.accepts_empty_string:
@@ -344,6 +390,10 @@ class StarRegex(Regex):
 
     accepts_empty_string = True
 
+    @property
+    def alphabet(self):
+        return self.regex.alphabet
+
     def __repr__(self):
         return "star(%r)" % self.regex
 
@@ -373,6 +423,10 @@ class RepeatRegex(Regex):
 
     accepts_empty_string = False
 
+    @property
+    def alphabet(self):
+        return self.regex.alphabet
+
     def __repr__(self):
         return "%r ** %d" % (self.regex, self.count)
 
@@ -380,25 +434,28 @@ class RepeatRegex(Regex):
         return hash((id(type(self)), self.regex, self.count))
 
 
-### Regex Constructors
+### Regex constructors ###
+
 
 def regexify(e):
     """
     Converts a Python object to a `Regex`. If it's already a `Regex`, it just
-    returns it. If it's an iterable, it will treat each element as a symbol,
-    and return their concatenation. (So this will work for `str`, `unicode`,
-    lists, etc.) Otherwise, it just treats it as a symbol.
+    returns it. It will also accept any string or character type, and create
+    a regex that matches that exactly.
 
     :param e: The Python object to create a regex of.
     """
     if isinstance(e, Regex):
         return e
-    elif hasattr(e, '__iter__') or isinstance(e, basestring):
-        if hasattr(e, '__len__') and len(e) == 0:
+    elif isinstance(e, Strings):
+        if len(e) == 0:
             return Epsilon
         return join(SymbolRegex(sym) for sym in e)
-    else:
+    elif isinstance(e, Characters):
         return SymbolRegex(e)
+    else:
+        raise TypeError(n("Instances of %r can't be automatically converted "
+                          "to regular expressions" % type(e)))
 
 
 #: A regular expression that matches any single symbol.
@@ -522,4 +579,4 @@ def repeat(regex, count):
     elif regex is Null:
         return Null
     else:
-        return RepeatRegex(regex, count)
+        return RepeatRegex(regexify(regex), count)

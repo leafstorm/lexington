@@ -42,6 +42,15 @@ Analyzing String Types
    The type used for individual bytes on the current platform
    (that is, what you get when you iterate over `Bytestring`).
 
+.. data:: Strings
+
+   A tuple of the types that indicate strings.
+
+.. data:: Characters
+
+   A tuple of the types that indicate characters
+   (that is, anything you can get iterating over a class in `Strings`).
+
 .. autofunction:: string_type
 
 
