@@ -346,3 +346,19 @@ Also, taking the derivative of a regular expression is really simple
 This means that we can use the derivative matching algorithm above on
 regular expressions directly -- and besides being easy to implement, it's
 actually pretty efficient. And this is how Lexington's regexes work.
+
+
+Further Reading
+---------------
+I learned about using derivatives for pattern matching from a pair of
+blog articles by Matthew Might:
+
+* `Pattern-matching regular expressions in Scheme using derivatives
+  <http://matt.might.net/articles/implementation-of-regular-expression-matching-in-scheme-with-derivatives/>`_
+* `A non-blocking lexing toolkit for Scala based on the derivative of
+  regular expressions
+  <http://matt.might.net/articles/nonblocking-lexing-toolkit-based-on-regex-derivatives/>`_
+
+For a more general introduction to languages and how to recognize them,
+I recommend Michael Sisper's :t:`Introduction to the Theory of Computation`
+(my CSC 333 textbook).
